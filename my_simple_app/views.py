@@ -1,6 +1,7 @@
 """
 Module containing WSGI-application controllers — views
 """
+from framework.templator import render
 
 
 class Index:
@@ -8,4 +9,4 @@ class Index:
     Handler for main page – '/'
     """
     def __call__(self):
-        return '200 - OK', 'OK (WSGI app is working)'
+        return '200 - OK', render('index.html')

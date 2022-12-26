@@ -47,7 +47,7 @@ class WSGIFramework:
 
         # run view
         status, body = view()
-        headers = [("Content-type", "text/plain; charset=utf-8")]
+        headers = [("Content-type", "text/html")]
 
         start_response(status, headers)
         return [body.encode('utf-8')]
