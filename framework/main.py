@@ -36,6 +36,9 @@ class WSGIFramework:
         """
         path = environ['PATH_INFO']
 
+        if not path.endswith('/'):
+            path = f'{path}/'
+
         # select view
         if path in self._routes:
             view = self._routes[path]
