@@ -4,13 +4,16 @@ Module is responsible for communication between WSGI-server and python applicati
 from typing import List
 from wsgiref import simple_server
 
+from framework.handlers import PageNotFound404
+
 
 class WSGIFramework:
     """
     Base class of WSGI-framework
     """
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, routes: dict):
         self._config = config
+        self._routes = routes
 
     @property
     def _port(self) -> int:
@@ -31,11 +34,19 @@ class WSGIFramework:
         Returns:
             list with byte string
         """
-        status = "200 OK"  # HTTP Status
+        path = environ['PATH_INFO']
+
+        # select view
+        if path in self._routes:
+            view = self._routes[path]
+        else:
+            view = PageNotFound404()
+
+        # run view
+        status, body = view()
         headers = [("Content-type", "text/plain; charset=utf-8")]
 
         start_response(status, headers)
-        body = 'Hello from wsgi-framework'
         return [body.encode('utf-8')]
 
     def run(self):
@@ -46,7 +57,7 @@ class WSGIFramework:
         print(f"Serving {self._root_path} on port {self._port}, ctrl+c to stop")
         httpd = simple_server.make_server("", self._port, self)
 
-        print('Check for a link: {}'.format(f"http://localhost:{self._port}/wsgi/1.cgi.app.py"))
+        print('Check for a link: {}'.format(f"http://localhost:{self._port}/"))
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

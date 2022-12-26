@@ -1,5 +1,6 @@
 import os
 from framework.main import WSGIFramework
+from my_simple_app.routes import urls
 
 
 if __name__ == "__main__":
@@ -8,5 +9,5 @@ if __name__ == "__main__":
         'root_path': os.getcwd(),
         'port': 8000
     }
-    application = WSGIFramework(config)
+    application = WSGIFramework(config, routes=urls)
     application.run()
