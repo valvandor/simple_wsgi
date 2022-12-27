@@ -1,7 +1,7 @@
 """
 Module is responsible for communication between WSGI-server and python application
 """
-from typing import List
+from typing import List, Callable
 from wsgiref import simple_server
 
 from framework.handlers import PageNotFound404
@@ -30,7 +30,7 @@ class WSGIFramework:
     def request(self) -> RequestPreparer:
         return RequestPreparer()
 
-    def __call__(self, environ: dict, start_response) -> List[bytes]:
+    def __call__(self, environ: dict, start_response: Callable) -> List[bytes]:
         """
         Args:
             environ: environment variable dictionary
