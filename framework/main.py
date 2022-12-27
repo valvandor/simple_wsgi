@@ -5,6 +5,7 @@ from typing import List
 from wsgiref import simple_server
 
 from framework.handlers import PageNotFound404
+from framework.request import RequestPreparer
 
 
 class WSGIFramework:
@@ -24,6 +25,10 @@ class WSGIFramework:
     def _root_path(self) -> str:
         assert 'root_path' in self._config
         return self._config['root_path']
+
+    @property
+    def request(self) -> RequestPreparer:
+        return RequestPreparer()
 
     def __call__(self, environ: dict, start_response) -> List[bytes]:
         """
@@ -45,8 +50,10 @@ class WSGIFramework:
         else:
             view = PageNotFound404()
 
+        request = self.request.form_new_request(environ)
+
         # run view
-        status, body = view()
+        status, body = view(request)
         headers = [("Content-type", "text/html")]
 
         start_response(status, headers)

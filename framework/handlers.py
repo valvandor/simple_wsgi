@@ -10,5 +10,5 @@ class PageNotFound404:
     Returns:
         tuple with code and error message
     """
-    def __call__(self):
+    def __call__(self, request):
         return '404 - NOT FOUND', 'Sorry, page not found'
