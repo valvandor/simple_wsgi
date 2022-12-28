@@ -1,7 +1,6 @@
 """
 Module contain logic for request creation
 """
-from quopri import decodestring as quopri_decodestring
 from framework import utils
 
 
@@ -56,8 +55,8 @@ class RequestPreparer:
             items = data.split('&')
             for item in items:
                 k, v = item.split('=')
-                normalized_value = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
-                params[k] = quopri_decodestring(normalized_value).decode('UTF-8')
+                normalized_value = utils.normalize_data(v)
+                params[k] = normalized_value
         return params
 
     def _get_wsgi_input_data(self, environ: dict) -> dict:
