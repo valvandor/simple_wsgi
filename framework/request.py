@@ -2,6 +2,7 @@
 Module contain logic for request creation
 """
 from io import BufferedReader
+from quopri import decodestring as quopri_decodestring
 
 
 class RequestPreparer:
@@ -45,6 +46,9 @@ class RequestPreparer:
         """
         Parse data containing request params into a dict
 
+        Side effects:
+            - normalization of data values
+
         Args:
             data: data to parse
 
@@ -56,7 +60,8 @@ class RequestPreparer:
             items = data.split('&')
             for item in items:
                 k, v = item.split('=')
-                params[k] = v
+                normalized_value = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
+                params[k] = quopri_decodestring(normalized_value).decode('UTF-8')
         return params
 
     @staticmethod
