@@ -1,6 +1,7 @@
 """
 Module contain logic for request creation
 """
+from io import BufferedReader
 
 
 class RequestPreparer:
@@ -27,6 +28,16 @@ class RequestPreparer:
             params = self._get_parsed_params(data=environ['QUERY_STRING'])
             request['params'] = params
             print(f'GET-parameters: {params}')
+        if method == 'POST':
+            if environ.get('CONTENT_LENGTH'):
+                data = self._get_wsgi_input_data(content_length=int(environ['CONTENT_LENGTH']),
+                                                 input_data=environ['wsgi.input'])
+                post_params = self._get_parsed_params(data)
+            else:
+                post_params = {}
+            print(f'POST-data: {post_params}')
+            request['data'] = post_params
+
         return request
 
     @staticmethod
@@ -47,3 +58,14 @@ class RequestPreparer:
                 k, v = item.split('=')
                 params[k] = v
         return params
+
+    @staticmethod
+    def _get_wsgi_input_data(content_length: int, input_data: BufferedReader) -> str:
+        """
+        Reads file-like object depending on the length of the content passed in the request
+
+        Returns:
+            decoded data
+        """
+        bytes_data = input_data.read(content_length)
+        return bytes_data.decode(encoding='utf-8')
