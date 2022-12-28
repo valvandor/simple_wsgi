@@ -31,12 +31,9 @@ class RequestPreparer:
             print(f'GET-parameters: {params}')
         if method == 'POST':
             if environ.get('CONTENT_LENGTH'):
-                data = utils.get_decoded_data(size=int(environ['CONTENT_LENGTH']), io_object=environ['wsgi.input'])
-                post_params = self._get_parsed_params(data)
-            else:
-                post_params = {}
-            print(f'POST-data: {post_params}')
-            request['data'] = post_params
+                post_data = self._get_wsgi_input_data(environ)
+                print(f'POST-data: {post_data}')
+                request['data'] = post_data
 
         return request
 
@@ -62,3 +59,13 @@ class RequestPreparer:
                 normalized_value = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
                 params[k] = quopri_decodestring(normalized_value).decode('UTF-8')
         return params
+
+    def _get_wsgi_input_data(self, environ: dict) -> dict:
+        """
+        Gets data from raw content of body
+
+        Returns:
+            parsed params as a data
+        """
+        data = utils.get_decoded_data(size=int(environ['CONTENT_LENGTH']), io_object=environ['wsgi.input'])
+        return self._get_parsed_params(data)
