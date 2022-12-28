@@ -1,8 +1,8 @@
 """
 Module contain logic for request creation
 """
-from io import BufferedReader
 from quopri import decodestring as quopri_decodestring
+from framework import utils
 
 
 class RequestPreparer:
@@ -31,8 +31,7 @@ class RequestPreparer:
             print(f'GET-parameters: {params}')
         if method == 'POST':
             if environ.get('CONTENT_LENGTH'):
-                data = self._get_wsgi_input_data(content_length=int(environ['CONTENT_LENGTH']),
-                                                 input_data=environ['wsgi.input'])
+                data = utils.get_decoded_data(size=int(environ['CONTENT_LENGTH']), io_object=environ['wsgi.input'])
                 post_params = self._get_parsed_params(data)
             else:
                 post_params = {}
@@ -63,14 +62,3 @@ class RequestPreparer:
                 normalized_value = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
                 params[k] = quopri_decodestring(normalized_value).decode('UTF-8')
         return params
-
-    @staticmethod
-    def _get_wsgi_input_data(content_length: int, input_data: BufferedReader) -> str:
-        """
-        Reads file-like object depending on the length of the content passed in the request
-
-        Returns:
-            decoded data
-        """
-        bytes_data = input_data.read(content_length)
-        return bytes_data.decode(encoding='utf-8')
